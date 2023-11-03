@@ -1,0 +1,249 @@
+name: 'Deploy Amazon Redis DB cluster (ElastiCache)'
+description: 'Deploys an AWS Redis cluster database. (AWS ElastiCache Redis cluster)'
+branding:
+  icon: upload-cloud
+  color: red
+inputs:
+  bitops_code_only:
+    description: 'Will run only the generation phase of BitOps, where the Terraform and Ansible code is built.'
+    required: false
+  bitops_code_store:
+    description: 'Store BitOps code as a GitHub artifact'
+    required: false
+    default: false
+
+  # AWS
+  aws_access_key_id:
+    description: 'AWS access key ID'
+    required: true
+  aws_secret_access_key:
+    description: 'AWS secret access key'
+    required: true
+  aws_session_token:
+    description: 'AWS session token'
+    required: false
+  aws_default_region:
+    description: 'AWS default region'
+    required: false
+    default: us-east-1
+  aws_resource_identifier:
+    description: 'Set to override the AWS resource identifier for the deployment.  Defaults to `${org}-{repo}-{branch}`.  Use with destroy to destroy specific resources.'
+    required: false
+  aws_additional_tags:
+    description: 'A JSON object of additional tags that will be included on created resources. Example: `{"key1": "value1", "key2": "value2"}`'
+    required: false
+
+  # Terraform
+  tf_stack_destroy:
+    description: 'Set to "true" to Destroy the stack through Terraform.'
+    required: false
+  tf_state_file_name:
+    description: 'Change this to be anything you want to. Carefull to be consistent here. A missing file could trigger recreation, or stepping over destruction of non-defined objects.'
+    required: false
+  tf_state_file_name_append:
+    description: 'Append a string to the tf-state-file. Setting this to `unique` will generate `tf-state-aws-unique`. Can co-exist with the tf_state_file_name variable. '
+    required: false
+  tf_state_bucket:
+    description: 'AWS S3 bucket to use for Terraform state. Defaults to `${org}-${repo}-{branch}-tf-state`'
+    required: false
+  tf_state_bucket_destroy:
+    description: 'Force purge and deletion of S3 bucket defined. Any file contained there will be destroyed. `tf_stack_destroy` must also be `true`'
+    required: false
+  
+  # Redis
+  aws_redis_enable:
+    description: 'Enables the creation of a Redis instance'
+    required: false
+  aws_redis_user:
+    description: 'Redis username. Defaults to redisuser'
+    required: false
+  aws_redis_user_access_string:
+    description: 'String expression for user access. Defaults to on ~* +@all'
+    required: false
+  aws_redis_user_group_name:
+    description: 'User group name. Defaults to aws_resource_identifier-redis'
+    required: false
+  aws_redis_security_group_name:
+    description: 'Redis security group name. Defaults to SG for aws_resource_identifier - Redis'
+    required: false
+  aws_redis_ingress_allow_all:
+    description: 'Allow access from 0.0.0.0/0 in the same VPC'
+    required: false
+  aws_redis_allowed_security_groups:
+    description: 'Comma separated list of security groups to be added to the Redis SG.'
+    required: false
+  aws_redis_subnets:
+    description: 'Define a list of specific subnets where Redis will live. Defaults to all of the VPC ones. If not defined, default VPC.'
+    required: false
+  aws_redis_port:
+    description: 'Redis port. Defaults to 6379'
+    required: false
+  aws_redis_at_rest_encryption:
+    description: 'Encryption at rest. Defaults to true.'
+    required: false
+  aws_redis_in_transit_encryption:
+    description: 'In-transit encryption. Defaults to true.'
+    required: false
+  aws_redis_replication_group_id:
+    description: 'Name of the Redis replication group. Defaults to aws_resource_identifier-redis'
+    required: false
+  aws_redis_node_type:
+    description: 'Node type of the Redis instance. Defaults to cache.t2.small'
+    required: false
+  aws_redis_num_cache_clusters:
+    description: 'Amount of Redis nodes. Defaults to 1'
+    required: false
+  aws_redis_parameter_group_name:
+    description: 'Redis parameters groups name. If cluster wanted, set it to something that includes .cluster.on. Defaults to default.redis7'
+    required: false
+  aws_redis_num_node_groups:
+    description: 'Number of node groups. Defaults to 0.'
+    required: false
+  aws_redis_replicas_per_node_group:
+    description: 'Number of replicas per node group. Defaults to 0'
+    required: false
+  aws_redis_multi_az_enabled:
+    description: 'Enables multi-availability-zone redis. Defaults to false'
+    required: false
+  aws_redis_automatic_failover:
+    description: 'Allows overriding the automatic configuration of this value, only needed when playing with resources in a non-conventional way.'
+    required: false
+  aws_redis_apply_immediately:
+    description: 'Specifies whether any modifications are applied immediately, or during the next maintenance window. Default is false.'
+    required: false
+  aws_redis_auto_minor_upgrade:
+    description: 'Specifies whether minor version engine upgrades will be applied automatically to the underlying Cache Cluster instances during the maintenance window. Defaults to true.'
+    required: false
+  aws_redis_maintenance_window:
+    description: 'Specifies the weekly time range for when maintenance on the cache cluster is performed. Example:sun:05:00-sun:06:00. Defaults to null.'
+    required: false
+  aws_redis_snapshot_window:
+    description: 'Daily time range (in UTC) when to start taking a daily snapshot. Minimum is a 60 minute period. Example: 05:00-09:00. Defaults to null.'
+    required: false
+  aws_redis_final_snapshot:
+    description: 'Change name to define a final snapshot.'
+    required: false
+  aws_redis_snapshot_restore_name:
+    description: 'Set name to restore a snapshot to the cluster. The default behaviour is to restore it each time this action runs.'
+    required: false
+  aws_redis_cloudwatch_enabled:
+    description: 'Enable or disables Cloudwatch logging.'
+    required: false
+  aws_redis_cloudwatch_lg_name:
+    description: 'Cloudwatch log group name. Defaults to /aws/redis/aws_resource_identifier. Will append log_type to it.'
+    required: false
+  aws_redis_cloudwatch_log_format:
+    description: 'Define log format between json (default) and text.'
+    required: false
+  aws_redis_cloudwatch_log_type:
+    description: 'Log type. Older Redis engines need slow-log. Newer support engine-log (default)'
+    required: false
+  aws_redis_cloudwatch_retention_days:
+    description: "Number of days to retain logs. 0 to never expire. Default '14'"
+    reuired: false
+  aws_redis_single_line_url_secret:
+    description: 'Creates an AWS secret containing the connection string containing protocol://user@pass:endpoint:port'
+    required: false
+  aws_redis_additional_tags:
+    description: 'Additional tags to be added to every Redis related resource'
+    required: false
+
+  # AWS VPC Inputs
+  aws_vpc_create:
+    description: 'Define if a VPC should be created'
+    required: false
+  aws_vpc_name:
+    description: 'Set a specific name for the VPC'
+    required: false
+  aws_vpc_cidr_block:
+    description: 'Define Base CIDR block which is divided into subnet CIDR blocks. Defaults to 10.0.0.0/16.'
+    required: false
+  aws_vpc_public_subnets:
+    description: 'Comma separated list of public subnets. Defaults to 10.10.110.0/24'
+    required: false
+  aws_vpc_private_subnets:
+    description: 'Comma separated list of private subnets. If none, none will be created.'
+    required: false
+  aws_vpc_availability_zones:
+    description: 'Comma separated list of availability zones. Defaults to `aws_default_region.'
+    required: false
+  aws_vpc_id:
+    description: 'AWS VPC ID. Accepts `vpc-###` values.'
+    required: false
+  aws_vpc_subnet_id:
+    description: 'Specify a Subnet to be used with the instance. If none provided, will pick one.'
+    required: false
+  aws_vpc_additional_tags:
+    description: 'A JSON object of additional tags that will be included on created resources. Example: `{"key1": "value1", "key2": "value2"}`'
+    required: false
+    
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy with BitOps
+      id: deploy
+      uses: bitovi/github-actions-commons@v0.0.8
+      with:
+        # AWS
+        aws_access_key_id: ${{ inputs.aws_access_key_id }}
+        aws_secret_access_key: ${{ inputs.aws_secret_access_key }}
+        aws_session_token: ${{ inputs.aws_session_token }}
+        aws_default_region: ${{ inputs.aws_default_region }}
+        aws_resource_identifier: ${{ inputs.aws_resource_identifier }}
+        aws_additional_tags: ${{ inputs.aws_additional_tags }}
+        
+        # Terraform
+        tf_stack_destroy: ${{ inputs.tf_stack_destroy }}
+        tf_state_file_name: ${{ inputs.tf_state_file_name }}
+        tf_state_file_name_append: ${{ inputs.tf_state_file_name_append }}
+        tf_state_bucket: ${{ inputs.tf_state_bucket }}
+        tf_state_bucket_destroy: ${{ inputs.tf_state_bucket_destroy }}
+        
+        # Current repo vars
+        bitops_code_only: ${{ inputs.bitops_code_only }}
+        bitops_code_store: ${{ inputs.bitops_code_store }}
+
+        # AWS_REDIS
+        aws_redis_enable: ${{ inputs.aws_redis_enable }}
+        aws_redis_user: ${{ inputs.aws_redis_user }}
+        aws_redis_user_access_string: ${{ inputs.aws_redis_user_access_string }}
+        aws_redis_user_group_name: ${{ inputs.aws_redis_user_group_name }}
+        aws_redis_security_group_name: ${{ inputs.aws_redis_security_group_name }}
+        aws_redis_ingress_allow_all: ${{ inputs.aws_redis_ingress_allow_all }}
+        aws_redis_allowed_security_groups: ${{ inputs.aws_redis_allowed_security_groups }}
+        aws_redis_subnets: ${{ inputs.aws_redis_subnets }}
+        aws_redis_port: ${{ inputs.aws_redis_port }}
+        aws_redis_at_rest_encryption: ${{ inputs.aws_redis_at_rest_encryption }}
+        aws_redis_in_transit_encryption: ${{ inputs.aws_redis_in_transit_encryption }}
+        aws_redis_replication_group_id: ${{ inputs.aws_redis_replication_group_id }}
+        aws_redis_node_type: ${{ inputs.aws_redis_node_type }}
+        aws_redis_num_cache_clusters: ${{ inputs.aws_redis_num_cache_clusters }}
+        aws_redis_parameter_group_name: ${{ inputs.aws_redis_parameter_group_name }}
+        aws_redis_num_node_groups: ${{ inputs.aws_redis_num_node_groups }}
+        aws_redis_replicas_per_node_group: ${{ inputs.aws_redis_replicas_per_node_group }}
+        aws_redis_multi_az_enabled: ${{ inputs.aws_redis_multi_az_enabled }}
+        aws_redis_automatic_failover: ${{ inputs.aws_redis_automatic_failover }}
+        aws_redis_apply_immediately: ${{ inputs.aws_redis_apply_immediately }}
+        aws_redis_auto_minor_upgrade: ${{ inputs.aws_redis_auto_minor_upgrade }}
+        aws_redis_maintenance_window: ${{ inputs.aws_redis_maintenance_window }}
+        aws_redis_snapshot_window: ${{ inputs.aws_redis_snapshot_window }}
+        aws_redis_final_snapshot: ${{ inputs.aws_redis_final_snapshot }}
+        aws_redis_snapshot_restore_name: ${{ inputs.aws_redis_snapshot_restore_name }}
+        aws_redis_cloudwatch_enabled: ${{ inputs.aws_redis_cloudwatch_enabled }}
+        aws_redis_cloudwatch_lg_name: ${{ inputs.aws_redis_cloudwatch_lg_name }}
+        aws_redis_cloudwatch_log_format: ${{ inputs.aws_redis_cloudwatch_log_format }}
+        aws_redis_cloudwatch_log_type: ${{ inputs.aws_redis_cloudwatch_log_type }}
+        aws_redis_cloudwatch_retention_days: ${{ inputs.aws_redis_cloudwatch_retention_days }}
+        aws_redis_single_line_url_secret: ${{ inputs.aws_redis_single_line_url_secret }}
+        aws_redis_additional_tags: ${{ inputs.aws_redis_additional_tags }}
+
+        # AWS VPC Inputs
+        aws_vpc_create: ${{inputs.aws_vpc_create }}
+        aws_vpc_name: ${{inputs.aws_vpc_name }}
+        aws_vpc_cidr_block: ${{inputs.aws_vpc_cidr_block }}
+        aws_vpc_public_subnets: ${{inputs.aws_vpc_public_subnets }}
+        aws_vpc_private_subnets: ${{inputs.aws_vpc_private_subnets }}
+        aws_vpc_availability_zones: ${{inputs.aws_vpc_availability_zones }}
+        aws_vpc_id: ${{inputs.aws_vpc_id }}
+        aws_vpc_subnet_id: ${{inputs.aws_vpc_subnet_id }}
+        aws_vpc_additional_tags: ${{inputs.aws_vpc_additional_tags }}
