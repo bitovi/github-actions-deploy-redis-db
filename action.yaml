@@ -1,5 +1,5 @@
-name: 'Deploy Amazon Redis DB cluster node'
-description: 'Deploys an AWS Redis cluster database'
+name: 'Deploy Amazon Redis DB cluster (ElastiCache)'
+description: 'Deploys an AWS Redis cluster database. (AWS ElastiCache Redis cluster)'
 branding:
   icon: upload-cloud
   color: red
@@ -90,7 +90,7 @@ inputs:
   aws_redis_node_type:
     description: 'Node type of the Redis instance. Defaults to cache.t2.small'
     required: false
-  aws_redis_cache_nodes:
+  aws_redis_num_cache_clusters:
     description: 'Amount of Redis nodes. Defaults to 1'
     required: false
   aws_redis_parameter_group_name:
@@ -122,6 +122,9 @@ inputs:
     required: false
   aws_redis_cloudwatch_log_type:
     description: 'Log type. Older Redis engines need slow-log. Newer support engine-log (default)'
+    required: false
+  aws_redis_single_line_url_secret:
+    description: 'Creates an AWS secret containing the connection string containing protocol://user@pass:endpoint:port'
     required: false
   aws_redis_additional_tags:
     description: 'Additional tags to be added to every Redis related resource'
@@ -161,7 +164,7 @@ runs:
   steps:
     - name: Deploy with BitOps
       id: deploy
-      uses: bitovi/github-actions-commons@redis-module
+      uses: bitovi/github-actions-commons@v0.8.0
       with:
         # AWS
         aws_access_key_id: ${{ inputs.aws_access_key_id }}
@@ -196,7 +199,7 @@ runs:
         aws_redis_in_transit_encryption: ${{ inputs.aws_redis_in_transit_encryption }}
         aws_redis_replication_group_id: ${{ inputs.aws_redis_replication_group_id }}
         aws_redis_node_type: ${{ inputs.aws_redis_node_type }}
-        aws_redis_cache_nodes: ${{ inputs.aws_redis_cache_nodes }}
+        aws_redis_num_cache_clusters: ${{ inputs.aws_redis_num_cache_clusters }}
         aws_redis_parameter_group_name: ${{ inputs.aws_redis_parameter_group_name }}
         aws_redis_num_node_groups: ${{ inputs.aws_redis_num_node_groups }}
         aws_redis_replicas_per_node_group: ${{ inputs.aws_redis_replicas_per_node_group }}
@@ -207,6 +210,7 @@ runs:
         aws_redis_cloudwatch_lg_name: ${{ inputs.aws_redis_cloudwatch_lg_name }}
         aws_redis_cloudwatch_log_format: ${{ inputs.aws_redis_cloudwatch_log_format }}
         aws_redis_cloudwatch_log_type: ${{ inputs.aws_redis_cloudwatch_log_type }}
+        aws_redis_single_line_url_secret: ${{ inputs.aws_redis_single_line_url_secret }}
         aws_redis_additional_tags: ${{ inputs.aws_redis_additional_tags }}
 
         # AWS VPC Inputs
