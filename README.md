@@ -31,16 +31,13 @@ Or, you can hire us for training, consulting, or development. [Set up a free con
 > **Note: ** Be sure to [set up your project for actions deployed pages](#set-up-your-project-for-actions-deployed-pages).
 
 For basic usage, create `.github/workflows/deploy.yaml` with the following to build on push.
+
+### Basic example
 ```yaml
 on:
   push:
     branches:
       - "main" # change to the branch you wish to deploy from
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 jobs:
   deploy:
@@ -56,7 +53,40 @@ jobs:
 
         aws_redis_enable: true
 ```
+
+### Advanced example - Cluster enabled
+```yaml
+on:
+  push:
+    branches:
+      - "main" # change to the branch you wish to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create an Redis DB
+      id: create-redis
+      uses: bitovi/github-actions-deploy-redis-db@v0.1.0
+      with:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_default_region: us-east-1
+
+        aws_redis_enable: true
+
+        aws_redis_num_cache_clusters: 0
+        aws_redis_num_node_groups: 2
+        aws_redis_replicas_per_node_group: 1
+        aws_redis_parameter_group_name: default.redis7.cluster.on
+        aws_redis_single_line_url_secret: true
+
+        aws_redis_cloudwatch_log_type: slow-log,engine-log
+```
+
 ## Customizing
+
+> **Note: ** This action makes use of Terraform [elasticache_replication_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_replication_group) resource. Most of the variables are mapped 1 to 1. Documentation on how to set it up could be found there.
 
 ### Inputs
 1. [AWS](#aws-inputs)
@@ -114,12 +144,17 @@ The following inputs can be used as `step.with` keys
 | `aws_redis_num_node_groups` | String | Number of node groups. Defaults to `0`. |
 | `aws_redis_replicas_per_node_group` | String | Number of replicas per node group. Defaults to `0`. |
 | `aws_redis_multi_az_enabled` | Boolean | Enables multi-availability-zone redis. Defaults to `false`. |
+| `aws_redis_apply_immediately` | Boolean | Specifies whether any modifications are applied immediately, or during the next maintenance window. Defaults to `false`. |
+| `aws_redis_auto_minor_upgrade` | Boolean | Specifies whether minor version engine upgrades will be applied automatically to the underlying Cache Cluster instances during the maintenance window. Defaults to `true`. |
+| `aws_redis_maintenance_window` | String | Specifies the weekly time range for when maintenance on the cache cluster is performed. Example:sun:05:00-sun:06:00. Defaults to `null`. |
+| `aws_redis_snapshot_window` | String | Daily time range (in UTC) when to start taking a daily snapshot. Minimum is a 60 minute period. Example: 05:00-09:00. Defaults to `null`. |
 | `aws_redis_final_snapshot` | String | Change name to define a final snapshot. |
 | `aws_redis_snapshot_restore_name` | String | Set name to restore a snapshot to the cluster. The default behaviour is to restore it each time this action runs. |
 | `aws_redis_cloudwatch_enabled` | Boolean | Enable or disables Cloudwatch logging. |
-| `aws_redis_cloudwatch_lg_name` | String | Cloudwatch log group name. Defaults to `redis/aws_resource_identifier`. |
+| `aws_redis_cloudwatch_lg_name` | String | Cloudwatch log group name. Defaults to `/aws/redis/<log_type>/aws_resource_identifier`. |
 | `aws_redis_cloudwatch_log_format` | String | Define log format between `json`(default) and text. |
-| `aws_redis_cloudwatch_log_type` | String | Log type. Older Redis engines need `slow-log`. Newer support `engine-log` (default) |
+| `aws_redis_cloudwatch_log_type` | String | Log type. Older Redis engines need `slow-log`. Newer support `engine-log` (default). You could add both by setting `slow-log,engine-log`.  |
+| `aws_redis_cloudwatch_retention_days` | String | Number of days to retain cloudwatch logs. Defaults to `14`. |
 | `aws_redis_single_line_url_secret`| Boolean | Creates an AWS secret containing the connection string containing `protocol://user@pass:endpoint:port` |
 | `aws_redis_additional_tags` | String | Additional tags to be added to every Redis related resource. |
 <hr/>
@@ -142,6 +177,11 @@ The following inputs can be used as `step.with` keys
 
 ## Contributing
 We would love for you to contribute to [`bitovi/github-actions-storybook-to-github-pages`](hhttps://github.com/bitovi/github-actions-storybook-to-github-pages).   [Issues](https://github.com/bitovi/github-actions-storybook-to-github-pages/issues) and [Pull Requests](https://github.com/bitovi/github-actions-storybook-to-github-pages/pulls) are welcome!
+
+## Note about num_cache_clusters and num_node_groups
+
+If you want to adjust num_node_groups and replicas_per_node_group, you **must** set **num_cache_clusters to 0**.
+More about that can be found in the Terraform resource documentation.
 
 ## Note about resource identifiers
 

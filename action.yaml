@@ -105,6 +105,18 @@ inputs:
   aws_redis_multi_az_enabled:
     description: 'Enables multi-availability-zone redis. Defaults to false'
     required: false
+  aws_redis_apply_immediately:
+    description: 'Specifies whether any modifications are applied immediately, or during the next maintenance window. Default is false.'
+    required: false
+  aws_redis_auto_minor_upgrade:
+    description: 'Specifies whether minor version engine upgrades will be applied automatically to the underlying Cache Cluster instances during the maintenance window. Defaults to true.'
+    required: false
+  aws_redis_maintenance_window:
+    description: 'Specifies the weekly time range for when maintenance on the cache cluster is performed. Example:sun:05:00-sun:06:00. Defaults to null.'
+    required: false
+  aws_redis_snapshot_window:
+    description: 'Daily time range (in UTC) when to start taking a daily snapshot. Minimum is a 60 minute period. Example: 05:00-09:00. Defaults to null.'
+    required: false
   aws_redis_final_snapshot:
     description: 'Change name to define a final snapshot.'
     required: false
@@ -115,7 +127,7 @@ inputs:
     description: 'Enable or disables Cloudwatch logging.'
     required: false
   aws_redis_cloudwatch_lg_name:
-    description: 'Cloudwatch log group name. Defaults to redis/aws_resource_identifier'
+    description: 'Cloudwatch log group name. Defaults to /aws/redis/log_type/aws_resource_identifier'
     required: false
   aws_redis_cloudwatch_log_format:
     description: 'Define log format between json (default) and text.'
@@ -123,6 +135,9 @@ inputs:
   aws_redis_cloudwatch_log_type:
     description: 'Log type. Older Redis engines need slow-log. Newer support engine-log (default)'
     required: false
+  aws_redis_cloudwatch_retention_days:
+    description: "Number of days to retain logs. 0 to never expire. Default '14'"
+    reuired: false
   aws_redis_single_line_url_secret:
     description: 'Creates an AWS secret containing the connection string containing protocol://user@pass:endpoint:port'
     required: false
@@ -204,12 +219,17 @@ runs:
         aws_redis_num_node_groups: ${{ inputs.aws_redis_num_node_groups }}
         aws_redis_replicas_per_node_group: ${{ inputs.aws_redis_replicas_per_node_group }}
         aws_redis_multi_az_enabled: ${{ inputs.aws_redis_multi_az_enabled }}
+        aws_redis_apply_immediately: ${{ inputs.aws_redis_apply_immediately }}
+        aws_redis_auto_minor_upgrade: ${{ inputs.aws_redis_auto_minor_upgrade }}
+        aws_redis_maintenance_window: ${{ inputs.aws_redis_maintenance_window }}
+        aws_redis_snapshot_window: ${{ inputs.aws_redis_snapshot_window }}
         aws_redis_final_snapshot: ${{ inputs.aws_redis_final_snapshot }}
         aws_redis_snapshot_restore_name: ${{ inputs.aws_redis_snapshot_restore_name }}
         aws_redis_cloudwatch_enabled: ${{ inputs.aws_redis_cloudwatch_enabled }}
         aws_redis_cloudwatch_lg_name: ${{ inputs.aws_redis_cloudwatch_lg_name }}
         aws_redis_cloudwatch_log_format: ${{ inputs.aws_redis_cloudwatch_log_format }}
         aws_redis_cloudwatch_log_type: ${{ inputs.aws_redis_cloudwatch_log_type }}
+        aws_redis_cloudwatch_retention_days: ${{ inputs.aws_redis_cloudwatch_retention_days }}
         aws_redis_single_line_url_secret: ${{ inputs.aws_redis_single_line_url_secret }}
         aws_redis_additional_tags: ${{ inputs.aws_redis_additional_tags }}
 
