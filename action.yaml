@@ -182,7 +182,7 @@ runs:
   steps:
     - name: Deploy with BitOps
       id: deploy
-      uses: bitovi/github-actions-commons@redis-module
+      uses: bitovi/github-actions-commons@v0.0.8
       with:
         # AWS
         aws_access_key_id: ${{ inputs.aws_access_key_id }}
