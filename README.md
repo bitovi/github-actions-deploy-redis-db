@@ -2,7 +2,7 @@
 `bitovi/github-actions-deploy-redis-db` deploys a Redis database cluster group. From one to multiple nodes.
 
 This action uses the new GitHub Actions Commons, that is used by many Bitovi GitHub Actions, and so it's constantly evolving and improving.
-
+![alt](https://bitovi-gha-pixel-tracker-deployment-main.bitovi-sandbox.com/pixel/9VGYuQniViBLOdi4tcBYU)
 ## Action Summary
 As is, this action will deploy a single node (customizable) cluster group of Redis. 
 
