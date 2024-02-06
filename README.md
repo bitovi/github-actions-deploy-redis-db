@@ -21,7 +21,7 @@ This project is supported by [Bitovi, A DevOps consultancy](https://www.bitovi.c
 
 You can **get help or ask questions** on our:
 
-- [Discord Community](https://discord.gg/J7ejFsZnJ4Z)
+- [Discord Community](https://discord.gg/zAHn4JBVcX)
 
 
 Or, you can hire us for training, consulting, or development. [Set up a free consultation](https://www.bitovi.com/services/devops-consulting).
@@ -203,10 +203,10 @@ An example of how to set them: `{"key1": "value1", "key2": "value2"}`'
 Buckets names can be made of up to 63 characters. If the length allows us to add -tf-state, we will do so. If not, a simple -tf will be added.
 
 ## License
-The scripts and documentation in this project are released under the [MIT License](https://github.com/bitovi/github-actions-storybook-to-github-pages/blob/main/LICENSE).
+The scripts and documentation in this project are released under the [MIT License](https://github.com/bitovi/github-actions-deploy-redis-db/blob/main/LICENSE).
 
 # Provided by Bitovi
 [Bitovi](https://www.bitovi.com/) is a proud supporter of Open Source software.
 
 # We want to hear from you.
-Come chat with us about open source in our Bitovi community [Discord](https://discord.gg/J7ejFsZnJ4Z)!
+Come chat with us about open source in our Bitovi community [Discord](https://discord.gg/zAHn4JBVcX)!
