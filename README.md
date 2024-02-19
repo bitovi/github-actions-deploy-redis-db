@@ -196,7 +196,7 @@ The following inputs can be used as `step.with` keys
 
 ## Note about num_cache_clusters and num_node_groups
 
-If you want to adjust num_node_groups and replicas_per_node_group, you **must** set **num_cache_clusters to 0**.
+If you want to adjust num_node_groups and replicas_per_node_group, you **must** set **[num_cache_clusters](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_replication_group#num_cache_clusters) to 0**.
 More about that can be found in the Terraform resource documentation.
 
 ## Note about resource identifiers
