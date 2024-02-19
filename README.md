@@ -45,7 +45,7 @@ jobs:
     steps:
     - name: Create an Redis DB
       id: create-redis
-      uses: bitovi/github-actions-deploy-redis-db@v0.1.0
+      uses: bitovi/github-actions-deploy-redis-db@v0.1.1
       with:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -67,7 +67,7 @@ jobs:
     steps:
     - name: Create an Redis DB
       id: create-redis
-      uses: bitovi/github-actions-deploy-redis-db@v0.1.0
+      uses: bitovi/github-actions-deploy-redis-db@v0.1.1
       with:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -93,6 +93,9 @@ jobs:
 1. [Action inputs](#action-inputs)
 1. [Redis inputs](#redis-inputs)
 1. [VPC Inputs](#vpc-inputs)
+
+### Outputs
+1. [Action Outputs](#action-outputs)
 
 The following inputs can be used as `step.with` keys
 <br/>
@@ -172,12 +175,24 @@ The following inputs can be used as `step.with` keys
 | `aws_vpc_availability_zones` | String | Comma separated list of availability zones. Defaults to `aws_default_region+<random>` value. If a list is defined, the first zone will be the one used for the EC2 instance. |
 | `aws_vpc_id` | String | AWS VPC ID. Accepts `vpc-###` values. |
 | `aws_vpc_subnet_id` | String | AWS VPC Subnet ID. If none provided, will pick one. (Ideal when there's only one) |
+| `aws_vpc_enable_nat_gateway` | Boolean | Adds a NAT gateway for each public subnet. Defaults to `false`. |
+| `aws_vpc_single_nat_gateway` | Boolean | Toggles only one NAT gateway for all of the public subnets. Defaults to `false`. |
+| `aws_vpc_external_nat_ip_ids` | String | **Existing** comma separated list of IP IDs if reusing. (ElasticIPs). |
 | `aws_vpc_additional_tags` | JSON | Add additional tags to the terraform [default tags](https://www.hashicorp.com/blog/default-tags-in-the-terraform-aws-provider), any tags put here will be added to vpc provisioned resources.|
 <hr/>
 <br/>
 
-## Contributing
-We would love for you to contribute to [`bitovi/github-actions-storybook-to-github-pages`](hhttps://github.com/bitovi/github-actions-storybook-to-github-pages).   [Issues](https://github.com/bitovi/github-actions-storybook-to-github-pages/issues) and [Pull Requests](https://github.com/bitovi/github-actions-storybook-to-github-pages/pulls) are welcome!
+#### **Action Outputs**
+| Name             | Description                        |
+|------------------|------------------------------------|
+| `aws_vpc_id` | The selected VPC ID used. |
+| `redis_endpoint` | Redis Endpoint. |
+| `redis_secret_name` | Redis Secret name. |
+| `redis_connection_string_secret` | Redis secret containing complete URL to connect directly. (e.g. rediss://user:pass@host:port). |
+| `redis_sg_id` | Redis SG ID. |
+<hr/>
+<br/>
+
 
 ## Note about num_cache_clusters and num_node_groups
 
@@ -201,6 +216,9 @@ An example of how to set them: `{"key1": "value1", "key2": "value2"}`'
 ### S3 buckets naming
 
 Buckets names can be made of up to 63 characters. If the length allows us to add -tf-state, we will do so. If not, a simple -tf will be added.
+
+## Contributing
+We would love for you to contribute to [`bitovi/github-actions-deploy-redis-db`](hhttps://github.com/bitovi/github-actions-deploy-redis-db).   [Issues](https://github.com/bitovi/github-actions-deploy-redis-db/issues) and [Pull Requests](https://github.com/bitovi/github-actions-deploy-redis-db/pulls) are welcome!
 
 ## License
 The scripts and documentation in this project are released under the [MIT License](https://github.com/bitovi/github-actions-deploy-redis-db/blob/main/LICENSE).
